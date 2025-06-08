@@ -1,0 +1,16 @@
+{
+	"name": "we-are-onchain-gcf",
+	"version": "1.0.0",
+	"scripts": {
+		"firebase": "firebase",
+		"fb:login": "firebase login",
+		"fb:init": "firebase init",
+		"fb:deploy": "firebase deploy",
+		"fb:emulators": "firebase emulators:start",
+		"fb:logs": "firebase functions:log"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.21",
+		"firebase-tools": "^13.0.0"
+	}
+}
