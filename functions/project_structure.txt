@@ -47,6 +47,7 @@
 │       └── opennodeSecure.js.map
 ├── package-lock.json
 ├── package.json
+├── project_files.md
 ├── project_structure.txt
 ├── src
 │   ├── config
@@ -59,4 +60,4 @@
 ├── tsconfig.dev.json
 └── tsconfig.json
 
-15 directories, 44 files
+15 directories, 45 files

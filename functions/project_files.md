@@ -720,7 +720,7 @@ async function processPaymentExpired(invoiceId: string, webhookData: any): Promi
 }
 
 /**
- * Invoice ステータス更新
+ * Invoice ステータス更
  */
 async function updateInvoiceStatus(invoiceId: string, status: string, webhookData: any): Promise<void> {
   try {
