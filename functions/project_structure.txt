@@ -1,0 +1,62 @@
+.
+├── lib
+│   ├── config
+│   │   ├── cryptoConfig.js
+│   │   └── cryptoConfig.js.map
+│   ├── crypto
+│   │   ├── index.js
+│   │   ├── index.js.map
+│   │   ├── scheduledUpdate.js
+│   │   └── scheduledUpdate.js.map
+│   ├── index.js
+│   ├── index.js.map
+│   ├── inventory
+│   │   ├── index.js
+│   │   └── index.js.map
+│   ├── openlogi
+│   │   ├── inventoryService.js
+│   │   ├── inventoryService.js.map
+│   │   ├── openlogiService.js
+│   │   ├── openlogiService.js.map
+│   │   ├── types.js
+│   │   └── types.js.map
+│   ├── openlogiSync
+│   │   ├── index.js
+│   │   └── index.js.map
+│   ├── services
+│   │   ├── coinGeckoService.js
+│   │   ├── coinGeckoService.js.map
+│   │   ├── firestoreService.js
+│   │   └── firestoreService.js.map
+│   ├── shared
+│   │   ├── middleware
+│   │   │   ├── security.js
+│   │   │   └── security.js.map
+│   │   └── utils
+│   │       ├── paymentHelpers.js
+│   │       └── paymentHelpers.js.map
+│   ├── types.js
+│   ├── types.js.map
+│   ├── utils
+│   │   ├── paymentHelpers.js
+│   │   └── paymentHelpers.js.map
+│   └── webhook
+│       ├── index.js
+│       ├── index.js.map
+│       ├── opennodeSecure.js
+│       └── opennodeSecure.js.map
+├── package-lock.json
+├── package.json
+├── project_structure.txt
+├── src
+│   ├── config
+│   │   └── cryptoConfig.ts
+│   ├── index.ts
+│   ├── services
+│   │   ├── coinGeckoService.ts
+│   │   └── firestoreService.ts
+│   └── types.ts
+├── tsconfig.dev.json
+└── tsconfig.json
+
+15 directories, 44 files
