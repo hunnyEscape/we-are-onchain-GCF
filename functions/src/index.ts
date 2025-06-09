@@ -1,4 +1,4 @@
-// Firebase Admin初期化（最初に実行される）
+// Firebase Admin初期化（最初に実行され
 import "./shared/config/firebase";
 
 // 各機能モジュールからエクスポート
