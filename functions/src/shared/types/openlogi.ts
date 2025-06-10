@@ -105,14 +105,35 @@ export interface InternationalShipmentRequest extends BaseShipmentRequest {
 // Union型
 export type OpenLogiShipmentRequest = DomesticShipmentRequest | InternationalShipmentRequest;
 
-// APIレスポンス
+// APIレスポンス（詳細版）
 export interface OpenLogiResponse {
-  id: string;
-  identifier: string;
-  order_no: string;
-  status: string;
+  id: string;                           // 出荷依頼ID（例: "TS001-S000001"）
+  identifier: string;                   // 識別番号
+  order_no: string;                     // 注文番号
+  status: string;                       // ステータス（例: "waiting", "processing", "shipped"）
+  
+  // 金額情報
+  subtotal_amount?: number;
+  delivery_charge?: number;
+  handling_charge?: number;
+  discount_amount?: number;
+  total_amount?: number;
+  
+  // 配送情報
+  delivery_carrier?: string;
+  delivery_method?: string;
+  delivery_time_slot?: string;
+  delivery_date?: string;
+  assigned_shipping_date?: string;
+  
+  // その他
+  warehouse?: string;
+  suspend?: boolean;
   message?: string;
-  // 他のレスポンスフィールドは必要に応じて追加
+  
+  // メタデータ
+  created_at?: string;
+  updated_at?: string;
 }
 
 // エラー型
