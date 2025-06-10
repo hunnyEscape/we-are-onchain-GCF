@@ -3,7 +3,7 @@ import "./shared/config/firebase";
 
 // 各機能モジュールからエクスポート
 export { opennodeWebhookSecure } from "./webhook/opennode";
-//npx firebase deploy --only functions:opennodeWebhookWithAutoShipment
+//npx firebase deploy --only functions:opennodeWebhookSecure
 
 export { updateCryptoPrices } from "./crypto/priceUpdater";
 
