@@ -6,6 +6,15 @@ export { opennodeWebhookSecure } from "./webhook/opennode";
 export { updateCryptoPrices } from "./crypto/priceUpdater";
 
 export { processInvoiceShipment } from "./openlogi/shipmentSubmitter";
+//npx firebase deploy --only functions:processInvoiceShipment
+/*
+curl -X POST \
+  https://processinvoiceshipment-spcu6fqyiq-an.a.run.app \
+  -H "Content-Type: application/json" \
+  -d '{
+    "invoiceId": "4a7e720c-a820-4442-9dd9-7ac634478225"
+  }'
+*/
 
 // 🆕 OpenLogi テスト関数エクスポート
 export { testOpenLogiDataConversion } from "./testing/dataConverter";

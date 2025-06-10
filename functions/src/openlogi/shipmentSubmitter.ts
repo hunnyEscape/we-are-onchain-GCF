@@ -55,8 +55,7 @@ export const processInvoiceShipment = onRequest({
 			invoiceId: reqInvoiceId,
 			validateOnly = false,
 			includeDebugInfo = false,
-			testMode = false,
-			usdToJpyRate
+			testMode = false
 		}: {
 			invoiceId: string;
 		} & ShipmentSubmissionOptions = request.body;

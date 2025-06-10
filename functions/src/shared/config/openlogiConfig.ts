@@ -54,7 +54,7 @@ export const OPENLOGI_DEFAULTS = {
 		suspend: false,
 		backorder_if_unavailable: true,
 		apply_rule: false,
-		allocate_priority: 50,
+		allocate_priority: 3,
 		cash_on_delivery: false,
 		handling_charge: 0,
 		discount_amount: 0
