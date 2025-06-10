@@ -1,6 +1,6 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { defineString, defineBoolean } from "firebase-functions/params";
+import { defineString } from "firebase-functions/params";
 import {
 	verifyWebhookPayload,
 	saveSecureWebhookLog,
@@ -18,19 +18,14 @@ const opennodeApiKey = defineString("OPENNODE_API_KEY", {
 	default: "",
 });
 
-const autoShipmentEnabled = defineBoolean("AUTO_SHIPMENT_ENABLED", {
-	description: "Enable automatic shipment after payment completion",
-	default: false,
-});
-
 /**
  * セキュリティ検証付きOpenNode Webhook処理関数（自動出荷機能付き）
  * HMAC-SHA256署名検証を実装
  */
-export const opennodeWebhookWithAutoShipment = onRequest({
+export const opennodeWebhookSecure = onRequest({
 	region: "asia-northeast1",
-	memory: "512MiB",  // 出荷処理のためメモリ増量
-	timeoutSeconds: 120, // 出荷処理のためタイムアウト延長
+	memory: "512MiB",  // 出荷処理のため少し増量
+	timeoutSeconds: 90, // 出荷処理のため少し延長
 	cors: true,
 }, async (request, response) => {
 	const startTime = Date.now();
@@ -41,7 +36,6 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 			timestamp: new Date().toISOString(),
 			userAgent: request.get("User-Agent"),
 			contentType: request.get("Content-Type"),
-			autoShipmentEnabled: autoShipmentEnabled.value(),
 		});
 
 		// POSTメソッドのみ受け付け
@@ -96,7 +90,6 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 
 		// 支払いステータス処理
 		let processedAction = "none";
-		let shipmentResult: any = null;
 		const { invoiceId, status, webhookData } = verification;
 
 		if (status === "paid") {
@@ -104,9 +97,7 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 			await processPaymentSuccess(invoiceId!, webhookData);
 
 			// 🚀 自動出荷処理
-			if (autoShipmentEnabled.value()) {
-				await triggerAutoShipment(invoiceId!);
-			}
+			await triggerAutoShipment(invoiceId!);
 
 			processedAction = "payment_completed";
 
@@ -115,46 +106,6 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 				amount: webhookData.price,
 				fee: webhookData.fee,
 			});
-
-			// 🚀 自動出荷処理
-			if (autoShipmentEnabled.value()) {
-				try {
-					logger.info("🚚 Starting automatic shipment", { invoiceId });
-
-					shipmentResult = await triggerAutoShipment(invoiceId!);
-
-					if (shipmentResult.success) {
-						processedAction = "payment_completed_and_shipped";
-						logger.info("🎉 Automatic shipment successful", {
-							invoiceId,
-							shipmentId: shipmentResult.shipmentId,
-						});
-					} else {
-						processedAction = "payment_completed_shipment_failed";
-						logger.warn("⚠️ Automatic shipment failed", {
-							invoiceId,
-							error: shipmentResult.error,
-						});
-					}
-				} catch (shipmentError: any) {
-					processedAction = "payment_completed_shipment_error";
-					logger.error("❌ Automatic shipment error", {
-						invoiceId,
-						error: shipmentError.message,
-						stack: shipmentError.stack,
-					});
-
-					// 出荷エラーをshipmentResultに記録
-					shipmentResult = {
-						success: false,
-						error: shipmentError.message,
-						invoiceId,
-					};
-				}
-			} else {
-				logger.info("⏸️ Automatic shipment disabled", { invoiceId });
-			}
-
 		} else if (status === "expired") {
 			// 期限切れ処理
 			await processPaymentExpired(invoiceId!, webhookData);
@@ -175,7 +126,7 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 			});
 		}
 
-		// セキュア処理ログを保存（出荷結果も含む）
+		// セキュア処理ログを保存
 		const logDocId = await saveSecureWebhookLog(
 			verification,
 			request,
@@ -191,8 +142,6 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 			invoiceId,
 			status,
 			processedAction,
-			autoShipmentEnabled: autoShipmentEnabled.value(),
-			shipmentSuccess: shipmentResult?.success,
 			duration: `${duration}ms`,
 		});
 
@@ -205,13 +154,6 @@ export const opennodeWebhookWithAutoShipment = onRequest({
 				status,
 				processedAction,
 				verificationPassed: true,
-				autoShipment: {
-					enabled: autoShipmentEnabled.value(),
-					attempted: status === "paid" && autoShipmentEnabled.value(),
-					success: shipmentResult?.success || false,
-					shipmentId: shipmentResult?.shipmentId || null,
-					error: shipmentResult?.error || null,
-				},
 				timestamp: new Date().toISOString(),
 				processingTime: `${duration}ms`,
 			},

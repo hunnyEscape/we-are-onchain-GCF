@@ -2,13 +2,7 @@
 // シンプルな自動出荷ヘルパー関数
 
 import * as admin from "firebase-admin";
-import {
-	convertToOpenLogiFormat,
-	generateConversionMetadata
-} from "./openlogiConverter";
-import {
-	submitOpenLogiShipment
-} from "./openlogiApiClient";
+import { processInvoiceShipmentInternal } from "./internalShipmentProcessor";
 
 /**
  * 自動出荷処理
@@ -33,42 +27,16 @@ export async function triggerAutoShipment(invoiceId: string): Promise<void> {
 			return;
 		}
 
-		// User Address 取得
-		let userAddress: any;
-		if (invoiceData.shippingSnapshot?.shippingAddress) {
-			userAddress = invoiceData.shippingSnapshot.shippingAddress;
-		} else {
-			const userDoc = await admin.firestore()
-				.collection('users')
-				.doc(invoiceData.userId)
-				.get();
-			if (!userDoc.exists) {
-				return;
-			}
-			const userData = userDoc.data()!;
-			const userAddresses = userData.address || [];
-			userAddress = userAddresses.find((addr: any) => addr.isDefault);
-			if (!userAddress) {
-				return;
-			}
-		}
-
-		// OpenLogi形式に変換
-		const openlogiPayload = convertToOpenLogiFormat(invoiceData, userAddress);
-
-		// OpenLogi API呼び出し
-		const apiResult = await submitOpenLogiShipment(openlogiPayload, {
-			testMode: false,
-			includeRawResponse: false
-		});
+		// 🚀 既存の内部出荷処理を呼び出し
+		const result = await processInvoiceShipmentInternal(invoiceId);
 
 		// 成功時のみ shipmentId を保存
-		if (apiResult.success && apiResult.data) {
+		if (result.success && result.shipmentId) {
 			await admin.firestore()
 				.collection('invoices')
 				.doc(invoiceId)
 				.update({
-					shipmentId: apiResult.data.id,
+					shipmentId: result.shipmentId,
 					autoShippedAt: admin.firestore.FieldValue.serverTimestamp()
 				});
 		}
