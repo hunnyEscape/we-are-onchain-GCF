@@ -18,7 +18,7 @@ const opennodeApiKey = defineString("OPENNODE_API_KEY", {
 });
 
 /**
- * セキュリティ検証付きOpenNode Webhook処理関数
+ * セキュリティ検証付きOpenNode Webhook処理関
  * HMAC-SHA256署名検証を実装
  */
 export const opennodeWebhookSecure = onRequest({
