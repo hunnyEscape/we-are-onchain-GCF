@@ -5,6 +5,8 @@ import "./shared/config/firebase";
 export { opennodeWebhookSecure } from "./webhook/opennode";
 export { updateCryptoPrices } from "./crypto/priceUpdater";
 
+export { processInvoiceShipment } from "./openlogi/shipmentSubmitter";
+
 // 🆕 OpenLogi テスト関数エクスポート
 export { testOpenLogiDataConversion } from "./testing/dataConverter";
 /*

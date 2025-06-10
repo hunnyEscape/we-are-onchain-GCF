@@ -1,5 +1,5 @@
 // src/shared/utils/openlogiConverter.ts
-// OpenLogi形式への変換ロジック
+// OpenLogi形式への変換ロジック（動作実績形式に修正）
 
 import * as logger from "firebase-functions/logger";
 import {
@@ -138,11 +138,11 @@ export function generateConversionMetadata(
 }
 
 /**
- * 商品リスト変換
+ * 商品リスト変換（動作実績形式: product_id → code）
  */
 export function convertCartItemsToOpenLogiItems(cartItems: any[]): any[] {
 	return cartItems.map(item => ({
-		product_id: mapProductId(item.id),
+		code: mapProductId(item.id),  // ✅ 修正: product_id → code
 		quantity: item.quantity
 	}));
 }
@@ -157,14 +157,13 @@ export function generateBaseRequest(invoiceData: any, userAddress: any): any {
 		// 基本識別情報
 		identifier: invoiceData.id,
 		order_no: invoiceData.sessionId,
-		warehouse: OPENLOGI_DEFAULTS.WAREHOUSE_CODE,
 
 		// 金額情報（USD→JPY変換）
 		subtotal_amount: convertUSDToJPY(invoiceData.cartSnapshot.subtotal, exchangeRate),
 		delivery_charge: convertUSDToJPY(userAddress.shippingFee || 0, exchangeRate),
 		total_amount: convertUSDToJPY(invoiceData.amount_usd, exchangeRate),
 
-		// 商品リスト
+		// 商品リスト（修正済みフィールド名）
 		items: convertCartItemsToOpenLogiItems(invoiceData.cartSnapshot.items),
 
 		// 配送先住所
@@ -208,7 +207,7 @@ export function generateInternationalRequest(baseRequest: any, shippingRequest: 
 }
 
 /**
- * メイン変換関数
+ * メイン変換関数（動作実績形式対応）
  */
 export function convertToOpenLogiFormat(
 	invoiceData: any,
@@ -290,4 +289,14 @@ function validateGeneratedRequest(request: OpenLogiShipmentRequest): void {
 	if (!request.identifier || !request.order_no || !request.items || request.items.length === 0) {
 		throw new Error("Missing required fields in generated request");
 	}
+
+	// 商品コードチェック（動作実績形式）
+	request.items.forEach((item: any, index: number) => {
+		if (!item.code || typeof item.code !== 'string') {
+			throw new Error(`Invalid item code at index ${index}: ${item.code}`);
+		}
+		if (!item.quantity || typeof item.quantity !== 'number' || item.quantity <= 0) {
+			throw new Error(`Invalid item quantity at index ${index}: ${item.quantity}`);
+		}
+	});
 }
