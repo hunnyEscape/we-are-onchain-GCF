@@ -14,11 +14,23 @@ import { ERROR_MESSAGES } from "../config/openlogiConfig";
  * 内部出荷処理関数
  * 既存のshipmentSubmitter.tsのロジックを内部関数化
  */
-export async function processInvoiceShipmentInternal(invoiceId: string): Promise<{
+export interface ProcessShipmentResult {
 	success: boolean;
 	shipmentId?: string;
 	error?: string;
-}> {
+	details?: any;           // OpenLogi API の詳細エラー
+	apiResponse?: any;       // 生APIレスポンス
+	debugInfo?: {           // デバッグ用追加情報
+		invoiceData?: any;
+		userAddress?: any;
+		openlogiPayload?: any;
+		processingSteps?: string[];
+	};
+}
+export async function processInvoiceShipmentInternal(
+	invoiceId: string, 
+	options?: { includeDebugInfo?: boolean }
+): Promise<ProcessShipmentResult> {
 	try {
 		// 🔍 Step 1: Invoice データ取得
 		const invoiceDoc = await admin.firestore()
@@ -61,7 +73,7 @@ export async function processInvoiceShipmentInternal(invoiceId: string): Promise
 		// 🚀 Step 4: OpenLogi API呼び出し
 		const apiResult = await submitOpenLogiShipment(openlogiPayload, {
 			testMode: false,
-			includeRawResponse: false
+			includeRawResponse: true
 		});
 
 		if (apiResult.success && apiResult.data) {
@@ -82,7 +94,9 @@ export async function processInvoiceShipmentInternal(invoiceId: string): Promise
 			// ❌ API呼び出し失敗
 			return {
 				success: false,
-				error: apiResult.error?.message || "Unknown API error"
+				error: apiResult.error?.message || "Unknown API error",
+				details: apiResult.error?.details,  // ← OpenLogi の詳細エラー
+				apiResponse: apiResult.apiResponse   // ← 生レスポンス
 			};
 		}
 
