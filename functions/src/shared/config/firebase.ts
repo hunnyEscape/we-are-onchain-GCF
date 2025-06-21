@@ -4,5 +4,5 @@ import { getFirestore } from "firebase-admin/firestore";
 // Firebase Admin初期化
 initializeApp();
 
-// Firestore インスタンスをエクスポート
+// Firestore インスタンスをエクスポー
 export const db = getFirestore();

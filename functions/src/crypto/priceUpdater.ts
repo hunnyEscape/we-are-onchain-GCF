@@ -15,7 +15,7 @@ const coinGeckoApiKey = defineString("COINGECKO_API_KEY", {
  * 5分間隔で暗号通貨価格を更新するScheduled Function
  */
 export const updateCryptoPrices = onSchedule({
-  schedule: "*/5 * * * *", // 5分間隔
+  schedule: "*/15 * * * *", // 5分間隔
   timeZone: "UTC",
   region: "asia-northeast1",
   memory: "256MiB",

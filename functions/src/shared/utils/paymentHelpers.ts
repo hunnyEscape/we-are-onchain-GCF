@@ -6,17 +6,20 @@ import { db } from "../config/firebase";
  */
 export async function processPaymentSuccess(
 	invoiceId: string,
-	webhookData: any
+	webhookData: any,
+	dev?: boolean
 ): Promise<void> {
 	try {
+		const prefix = dev ? 'dev-' : '';
+		const collectionName = `${prefix}invoices`;
 		// 1. Invoice ステータス更新
-		const invoiceRef = db.collection("invoices").doc(invoiceId);
+		const invoiceRef = db.collection(collectionName).doc(invoiceId);
 		const invoiceDoc = await invoiceRef.get();
 
 
 		const invoiceData = invoiceDoc.data();
 		const currentStatus = invoiceData?.status;
-		
+
 		if (currentStatus === "paid") {
 			logger.info("Invoice already paid; skipping redirect update", { invoiceId });
 			return;  // すでに paid の場合は何もしない
