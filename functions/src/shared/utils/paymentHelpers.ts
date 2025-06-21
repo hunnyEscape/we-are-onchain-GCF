@@ -2,6 +2,59 @@ import * as logger from "firebase-functions/logger";
 import { db } from "../config/firebase";
 
 /**
+ * 在庫更新処理
+ */
+async function updateProductStock(
+	items: any[],
+	dev?: boolean
+): Promise<void> {
+	const prefix = dev ? 'dev-' : '';
+	const collectionName = `${prefix}products`;
+
+	for (const item of items) {
+		try {
+			const productRef = db.collection(collectionName).doc(item.id);
+			const productDoc = await productRef.get();
+
+			if (productDoc.exists) {
+				const productData = productDoc.data();
+				const currentStock = productData?.stock || 0;
+				const newStock = currentStock - item.quantity;
+
+				await productRef.update({
+					stock: newStock,
+					updatedAt: new Date(),
+				});
+
+				logger.info("Product stock updated", {
+					productId: item.id,
+					quantity: item.quantity,
+					previousStock: currentStock,
+					newStock: newStock,
+				});
+
+				if (newStock < 0) {
+					logger.warn("Product stock is negative", {
+						productId: item.id,
+						newStock: newStock,
+					});
+				}
+			} else {
+				logger.warn("Product not found for stock update", {
+					productId: item.id,
+				});
+			}
+		} catch (error: any) {
+			logger.error("Product stock update failed", {
+				productId: item.id,
+				error: error.message,
+			});
+			// 他の商品の処理は続行
+		}
+	}
+}
+
+/**
  * 支払い成功処理
  */
 export async function processPaymentSuccess(
@@ -9,6 +62,11 @@ export async function processPaymentSuccess(
 	webhookData: any,
 	dev?: boolean
 ): Promise<void> {
+	logger.info("🔥🔥🔥 NEW VERSION processPaymentSuccess CALLED 🔥🔥🔥", {
+		invoiceId,
+		dev,
+		timestamp: new Date().toISOString()
+	});
 	try {
 		const prefix = dev ? 'dev-' : '';
 		const collectionName = `${prefix}invoices`;
@@ -26,6 +84,13 @@ export async function processPaymentSuccess(
 		}
 
 		if (invoiceDoc.exists) {
+
+			logger.info("CALLED2", {
+				invoiceId,
+				dev,
+				timestamp: new Date().toISOString()
+			});
+
 			await invoiceRef.update({
 				status: "redirect",
 				paidAt: new Date(),
@@ -36,7 +101,8 @@ export async function processPaymentSuccess(
 			// 2. ユーザーカートクリア
 			const invoiceData = invoiceDoc.data();
 			if (invoiceData?.userId) {
-				await db.doc(`users/${invoiceData.userId}`).update({
+				const userCollectionName = `${prefix}users`;
+				await db.doc(`${userCollectionName}/${invoiceData.userId}`).update({
 					cart: [],
 					lastPurchaseAt: new Date(),
 				});
@@ -44,7 +110,18 @@ export async function processPaymentSuccess(
 				logger.info("User cart cleared after payment", {
 					userId: invoiceData.userId,
 					invoiceId,
+					collection: userCollectionName,
 				});
+			}
+			// 3. 在庫更新
+			logger.info("Checking for stock update", {
+				hasCartSnapshot: !!invoiceData?.cartSnapshot,
+				hasItems: !!invoiceData?.cartSnapshot?.items,
+				itemsLength: invoiceData?.cartSnapshot?.items?.length || 0,
+				dev: dev
+			});
+			if (invoiceData?.cartSnapshot?.items) {
+				await updateProductStock(invoiceData.cartSnapshot.items, dev);
 			}
 		} else {
 			logger.warn("Invoice not found for payment processing", {
