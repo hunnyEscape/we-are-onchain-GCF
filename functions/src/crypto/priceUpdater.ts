@@ -5,7 +5,7 @@ import { CoinGeckoService } from "../services/coinGeckoService";
 import { FirestoreService } from "../services/firestoreService";
 import { CRYPTO_CONFIG, API_CONFIG } from "../config/cryptoConfig";
 
-// 環境変数定義
+// 環境変数定
 const coinGeckoApiKey = defineString("COINGECKO_API_KEY", {
   description: "CoinGecko API Key",
   default: "demo",
@@ -17,7 +17,7 @@ const coinGeckoApiKey = defineString("COINGECKO_API_KEY", {
 export const updateCryptoPrices = onSchedule({
   schedule: "*/15 * * * *", // 5分間隔
   timeZone: "UTC",
-  region: "asia-northeast1",
+  region: "us-central1",
   memory: "256MiB",
   timeoutSeconds: 300,
   maxInstances: 1,

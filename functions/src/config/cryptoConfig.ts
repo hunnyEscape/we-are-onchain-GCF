@@ -7,6 +7,20 @@ export const CRYPTO_CONFIG: CryptoConfig = {
       symbol: "BTC",
       name: "Bitcoin",
     },
+  ],
+};
+
+export const API_CONFIG = {
+  UPDATE_INTERVAL_MINUTES: 5,
+  TIMEOUT_SECONDS: 30,
+  MAX_RETRIES: 2,
+  RATE_LIMIT_BUFFER: 5,
+  DEMO_API_MONTHLY_LIMIT: 10000,
+  DEMO_API_RATE_LIMIT_PER_MINUTE: 30,
+  MONTHLY_USAGE_ALERT_THRESHOLD: 8000,
+  EMERGENCY_FALLBACK_INTERVAL: 30,
+};
+/*
     {
       id: "ethereum",
       symbol: "ETH",
@@ -27,16 +41,4 @@ export const CRYPTO_CONFIG: CryptoConfig = {
       symbol: "SUI",
       name: "Sui",
     },
-  ],
-};
-
-export const API_CONFIG = {
-  UPDATE_INTERVAL_MINUTES: 5,
-  TIMEOUT_SECONDS: 30,
-  MAX_RETRIES: 2,
-  RATE_LIMIT_BUFFER: 5,
-  DEMO_API_MONTHLY_LIMIT: 10000,
-  DEMO_API_RATE_LIMIT_PER_MINUTE: 30,
-  MONTHLY_USAGE_ALERT_THRESHOLD: 8000,
-  EMERGENCY_FALLBACK_INTERVAL: 30,
-};
+*/

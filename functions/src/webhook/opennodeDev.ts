@@ -22,7 +22,7 @@ const opennodeApiKey = defineString("OPENNODE_API_KEY", {
  * HMAC-SHA256署名検証を実装
  */
 export const opennodeWebhookSecureDev = onRequest({
-	region: "asia-northeast1",
+	region: "us-central1",
 	memory: "512MiB",  // 出荷処理のため少し増量
 	timeoutSeconds: 90, // 出荷処理のため少し延長
 	cors: true,
